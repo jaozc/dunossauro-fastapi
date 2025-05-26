@@ -2,12 +2,12 @@ from contextlib import contextmanager
 from datetime import datetime
 
 import pytest
-from fast_zero.models import table_registry
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, event
+from sqlalchemy import StaticPool, create_engine, event
 from sqlalchemy.orm import Session
 
 from fast_zero.app import app
+from fast_zero.models import User, table_registry
 
 
 @pytest.fixture
@@ -21,8 +21,22 @@ def mock_db_time():
 
 
 @pytest.fixture
+def user(session):
+    user = User(username='Teste', email='teste@test.com', password='testtest')
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    return user
+
+
+@pytest.fixture
 def session():
-    engine = create_engine('sqlite:///:memory:')
+    engine = create_engine(
+        'sqlite:///:memory:',
+        connect_args={'check_same_thread': False},
+        poolclass=StaticPool,
+    )
     table_registry.metadata.create_all(engine)
 
     with Session(engine) as session:

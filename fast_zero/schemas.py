@@ -1,10 +1,8 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class Message(BaseModel):
     message: str
-    docs_url: str
-    redoc_url: str
 
 
 class HTMLResponse(BaseModel):
@@ -13,19 +11,16 @@ class HTMLResponse(BaseModel):
 
 
 class UserSchema(BaseModel):
-    name: str
+    username: str
     email: EmailStr
     password: str
 
 
 class UserPublic(BaseModel):
     id: int
-    name: str
+    username: str
     email: EmailStr
-
-
-class UserDB(UserSchema):
-    id: int
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserList(BaseModel):
